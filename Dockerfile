@@ -6,8 +6,9 @@
 FROM debian:jessie
 MAINTAINER Paul LaMar <pal3@outlook.com>
 
-## NOTE: The haskell image sets LANG to C.UTF-8 which is the recommended
+## NOTE: Set LANG to C.UTF-8 which is the recommended
 ##       setting for Docker containers (not en_US.utf8).
+ENV LANG C.UTF-8
 
 # Some of the TeX Live packages configure front end dialogs and need $TERM set.
 ENV TERM xterm
@@ -18,9 +19,14 @@ RUN apt-get update \
     libjs-jquery-ui libghc-filestore-data graphviz texlive texlive-latex-extra gitit \
     && rm -rf /var/lib/apt/lists/*
 
+RUN adduser --disabled-password  --gecos "Gitit,,," gitit
+
 ##VOLUME ["/data"]
 
 EXPOSE 5001
+
+USER gitit
+WORKDIR /home/gitit/
 
 CMD /bin/bash
 
