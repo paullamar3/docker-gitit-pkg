@@ -1,28 +1,32 @@
 #!/bin/bash
+## From this entrypoint we can either initialize a brand new
+## Gitit wiki, copy in an existing wiki or clone an existing wiki.
 
-## The first argument is the name to use for git commits;
-## the second is the email associated with that name;
-## the third argument, if provided, is an existing git
-## repository we want to use to initialize the container.
-
-if [ -n "$1" ]
-then 
-  git config --global user.name "$1"
-fi
-
-if [ -n "$2" ]
-then 
-  git config --global user.email "$2"
-fi
-
-if [ -n "$3" ]
-then 
-  rm -rf /home/gitit/data/wikidata/*
+# If no parameters then just run Gitit
+if [[ -z "$1" ]] ; then
   cd /home/gitit/data
-  git clone "$3" wikidata
+  gitit -f gitit.conf
+  exit
+# If "copy" then copy the working directory, add and commit
+elif [[ "${1,,}" = "copy" ]]; then
+  cd /home/gitit/
+  # Note that by specifying "init/*" we avoid copying hidden files
+  # and folders. This is important; we don't want to copy over the 
+  # ".git" folder.
+  cp -rf init/* data/wikidata/
+  cd /home/gitit/data/wikidata
+  git add .
+  git commit -m "Initializing wiki from copy."
+  exit
+# If "clone" then remove any existing repo and clone a new repo
+elif [[ "${1,,}" = "clone" ]]; then
+  cd /home/gitit/data/wikidata
+  rm -rf *
+  rm -rf ./.git
+  git clone /home/gitit/init ./
+  # Gitit repos need to be able to accept pushes on the currently
+  # checked out branch.
+  git config receive.denyCurrentBranch ignore
+  exit
 fi
-
-cd data
-gitit -f gitit.conf
-exit
 
