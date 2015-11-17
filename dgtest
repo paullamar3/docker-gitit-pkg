@@ -1,0 +1,64 @@
+#!/bin/bash
+
+## This script runs a set of operations against the gitit-pkg 
+## image in order to ascertain that it is working as designed.
+## These operations are:
+##    1. Create a container with an empty wiki using defaults.
+##    2. Create a container with a wiki that is copied from an existing directory.
+##    3. Create a container with a wiki that is cloned from an exissting repository.
+##    4. Create a container with empty wiki with port and name specified.
+
+set -e
+
+# Put current directory in path so we can call other scripts without "./" prefix.
+PATH=""$PATH":$PWD"
+
+# 1. Create container with empty wiki
+set -x
+dgititrun -n dgtest > dgtest.log
+sleep 6
+curl http://localhost > dgtest_frontpage.html
+set +x
+
+docker stop dgtest || { echo "Failed to stop dgtest container." >&2; exit 1; }
+docker rm -v dgtest || { echo "Failed to remove dgtest container." >&2; exit 1; }
+
+# Prep for the next to tests by setting up a test wiki.
+if [[ -d dgtestwiki ]] ; then
+  echo "The dgtestwiki should be deleted or renamed before running this script." >&2
+  exit 1
+fi
+
+mkdir dgtestwiki
+
+tar -xvf dgtestwiki.tar -C dgtestwiki/ --strip-components=1
+
+# 2. Create container with copied wiki
+set -x
+dgfromcopy -n dgtestcopy -d "$PWD/dgtestwiki" > dgtestcopy.log
+sleep 6
+curl http://localhost > dgtestcopy_frontpage.html
+set +x
+
+docker stop dgtestcopy || { echo "Failed to stop dgtestcopy container." >&2; exit 1; }
+docker rm -v dgtestcopy || { echo "Failed to remove dgtestcopy container." >&2; exit 1; }
+
+# 3. Create a container with a cloned wiki
+set -x
+dgfromclone -n dgtestclone -d "$PWD/dgtestwiki" > dgtestclone.log
+sleep 6
+curl http://localhost > dgtestclone_frontpage.html
+set +x
+
+docker stop dgtestclone || { echo "Failed to stop dgtestclone container." >&2; exit 1; }
+docker rm -v dgtestclone || { echo "Failed to remove dgtestclone container." >&2; exit 1; }
+
+# Remove test wiki
+rm -rf ./dgtestwiki
+
+# Copy test results to a folder
+tdir="test_$(date +"%j%H%M")"
+mkdir "$tdir"
+mv dgtest*.log "$tdir"
+mv dgtest*.html "$tdir"
+

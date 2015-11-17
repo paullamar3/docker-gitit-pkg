@@ -1,6 +1,8 @@
 #!/bin/bash
 ## A wrapper for the `docker run` command for a new Gitit container.
 
+set -e
+
 # First we set up our default values
 cname="gitit_$(date +"%j%H%M")"           # Container Name
 port='80'                                 # Host port
@@ -27,7 +29,7 @@ while getopts ":n:p:x:i:d:" opt; do
       dir="$OPTARG"
       ;;
     \?)
-      echo "Invalid option: -$OPTARG" >$2
+      echo "Invalid option: -$OPTARG" >&2
       ;;
     :)
       echo "Option -$OPTARG requires an argument." >&2

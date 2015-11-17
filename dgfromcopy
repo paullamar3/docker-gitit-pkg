@@ -1,0 +1,43 @@
+#!/bin/bash
+## A script that both runs and intitalizes a gitit repository
+
+set -e
+
+# Put current directory in path so we can call other scripts without "./" prefix.
+PATH=""$PATH":$PWD"
+
+# First we set up our default values
+cname="gitit_$(date +"%j%H%M")"                    # Container Name
+port='80'                                          # Host port
+dir="$PWD"                                         # Directory with initial wiki
+
+# Parse our options
+while getopts ":n:p:d:" opt; do
+  case $opt in
+    n)
+      cname="$OPTARG"
+      ;;
+    p)
+      port="$OPTARG"
+      ;;
+    d)
+      dir="$OPTARG"
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      ;;
+  esac
+done
+
+# This is the name for our initialization container
+cinit=""$cname"_init"
+
+# Now run the Gitit container
+dgititrun -n "$cname" -p "$port" || { echo "Failed run of Gitit container." >&2; exit 1; }
+dgititrun -n "$cinit" -i "$cname" -d "$dir" -x 'copy' || { echo "Failed run of initialization container." >&2; exit 1; }
+
+echo "Gitit container is running and initialized."
+
