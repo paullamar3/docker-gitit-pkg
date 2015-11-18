@@ -38,6 +38,9 @@ VOLUME ["/home/gitit/data"]
 #    the Git global user configuration.
 COPY entrypoint.sh /home/gitit/entrypoint.sh
 
+# Copy the utilities into a directory where gitit user has read-only access.
+COPY utils/  /home/gitit/
+
 # Switch to the gitit user
 USER gitit
 
