@@ -1,3 +1,4 @@
 .git
 test_*
+utils/test_*
 *.swp

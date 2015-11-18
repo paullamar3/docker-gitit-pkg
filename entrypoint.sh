@@ -28,5 +28,7 @@ elif [[ "${1,,}" = "clone" ]]; then
   # checked out branch.
   git config receive.denyCurrentBranch ignore
   exit
+elif [[ "${1,,}" = "utils" ]]; then
+  cp /home/gitit/utils /home/gitit/host
 fi
 
