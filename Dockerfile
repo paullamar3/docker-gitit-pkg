@@ -39,7 +39,7 @@ VOLUME ["/home/gitit/data"]
 COPY entrypoint.sh /home/gitit/entrypoint.sh
 
 # Copy the utilities into a directory where gitit user has read-only access.
-COPY utils/  /home/gitit/
+COPY utils/  /home/gitit/utils/
 
 # Switch to the gitit user
 USER gitit
