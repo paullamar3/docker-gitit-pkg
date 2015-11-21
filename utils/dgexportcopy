@@ -1,0 +1,61 @@
+#!/bin/bash
+## A utility script for exporting the wiki in an existing gitit container.
+
+set -e
+
+USAGE="$(basename "$0") [-h] [-d PATH] CONTAINER
+
+This script exports the Gitit wiki in a container based on 
+paullamar3/gitit-pkg. 
+
+    -h          Display this help message.
+    -d PATH     The host folder we are exporting the wiki
+                into.
+    CONTAINER   The name of the container that has the wiki.
+
+For detailed documentation execute the following to start a Gitit container:
+  ./dgititrun 
+
+Attach to the Gitit instance by using a browser to connect to 'localhost'. The 
+default Gitit wiki contains pages describing this container image and these
+utility shell scripts.
+
+Documentation can also be found at https://github.com/paullamar3/docker-gitit-pkg.
+"
+# Put current directory in path so we can call other scripts without "./" prefix.
+PATH=""$PATH":$PWD"
+
+# First we set up our default values
+dir="$PWD"                                # Default host folder for init
+
+# Now we parse our options
+OPTIND=1
+while getopts ":hd:" opt; do
+  case $opt in
+    h)
+      echo "$USAGE"
+      ;;
+    d)
+      dir="$OPTARG"
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [[ -z "$1" ]]; then
+  echo "Must specify the container name to be exported."
+  exit 1
+fi
+
+# Now run the Gitit container
+dgititrun -i "$1" -d "$dir" -x 'expcopy' || { echo "Failed run of export container." >&2; exit 1; }
+
+echo "Export completed."
+
+

@@ -3,6 +3,27 @@
 
 set -e
 
+USAGE="$(basename "$0") [-h] [-n NAME] [-p PORT] [-i INIT] [-d PATH] [-x ACTION]
+
+This script provides a convenience wrapper for the 'docker run' command when
+using the paullamar3/gitit-pkg image.
+
+    -h                 Displays this help message.
+    -n NAME            The name to assign to the container.
+    -p PORT            The host port that Gitit will connect to.
+    -i INIT            The name of the container to initialize.
+    -d PATH            The folder containing the initialization wiki.
+    -x ACTION          The action to perform. 
+
+For detailed documentation execute the following to start a Gitit container:
+  ./dgititrun 
+
+Attach to the Gitit instance by using a browser to connect to 'localhost'. The 
+default Gitit wiki contains pages describing this container image and these
+utility shell scripts.
+
+Documentation can also be found at https://github.com/paullamar3/docker-gitit-pkg.
+"
 # First we set up our default values
 cname="gitit_$(date +"%j%H%M")"           # Container Name
 port='80'                                 # Host port
@@ -11,8 +32,11 @@ cinit=""                                  # Container to initialize
 dir="$PWD"                                # Default host folder for init
 
 # Now we parse our options
-while getopts ":n:p:x:i:d:" opt; do
+while getopts ":hn:p:x:i:d:" opt; do
   case $opt in
+    h)
+      echo "$USAGE"
+      ;;
     n) 
       cname="$OPTARG"
       ;;
@@ -44,11 +68,12 @@ if [[ "$action" = "" ]]; then
   set -x
   docker run -d --name "$cname" -p "$port:5001" -v /home/gitit/data/  paullamar3/gitit-pkg:v0.10
   set +x
-else
+elif [[ "${action,,}" = "copy" || "${action,,}" = "clone" ]]; then
   set -x
-  docker run -it --name "$cname" --volumes-from "$cinit" -v "$dir:/home/gitit/init" paullamar3/gitit-pkg:v0.10 "$action"
-  docker rm -v "$cname"
+  docker run -it --name "$cname" --rm --volumes-from "$cinit" -v "$dir:/home/gitit/init" paullamar3/gitit-pkg:v0.10 "$action"
   set +x
+elif [[ "${action,,}" = "expcopy" || "${action,,}" = "expclone" ]]; then
+  docker run -it --rm --volumes-from "$cinit" -v "$dir:/home/gitit/export" paullamar3/gitit-pkg:v0.10 "$action"
 fi
 
 

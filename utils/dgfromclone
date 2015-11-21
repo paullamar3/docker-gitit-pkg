@@ -3,6 +3,27 @@
 
 set -e
 
+USAGE="$(basename "$0") [-h] [-n NAME] [-p PORT] [-d PATH]
+
+This script provides a convenience wrapper for the 'docker run' command when
+using the paullamar3/gitit-pkg image. This script creates a new Gitit
+container and then initializes the wiki by copying a folder of markdown 
+documents into the container's wiki.
+
+    -h                 Displays this help message.
+    -n NAME            The name to assign to the container.
+    -p PORT            The host port that Gitit will connect to.
+    -d PATH            The folder containing the initialization wiki.
+
+For detailed documentation execute the following to start a Gitit container:
+  ./dgititrun 
+
+Attach to the Gitit instance by using a browser to connect to 'localhost'. The 
+default Gitit wiki contains pages describing this container image and these
+utility shell scripts.
+
+Documentation can also be found at https://github.com/paullamar3/docker-gitit-pkg.
+"
 # Put current directory in path so we can call other scripts without "./" prefix.
 PATH=""$PATH":$PWD"
 
@@ -12,8 +33,11 @@ port='80'                                          # Host port
 dir="$PWD"                                         # Directory with initial wiki
 
 # Parse our options
-while getopts ":n:p:d:" opt; do
+while getopts ":hn:p:d:" opt; do
   case $opt in
+    h)
+      echo "$USAGE"
+      ;;
     n)
       cname="$OPTARG"
       ;;

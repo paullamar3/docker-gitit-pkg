@@ -5,7 +5,12 @@
 # If no parameters then just run Gitit
 if [[ -z "$1" ]] ; then
   cd /home/gitit/data
-  gitit -f gitit.conf
+  echo "     --------------------------"
+  echo "Documentation for this container is contained in the Gitit wiki."
+  echo "A copy of the documentation is at https://github.com/paullamar3/docker-gitit-pkg."
+  echo "     --------------------------"
+  echo " "
+  exec gitit -f gitit.conf
   exit
 # If "copy" then copy the working directory, add and commit
 elif [[ "${1,,}" = "copy" ]]; then
@@ -30,5 +35,12 @@ elif [[ "${1,,}" = "clone" ]]; then
   exit
 elif [[ "${1,,}" = "utils" ]]; then
   cp -r /home/gitit/utils /home/gitit/host/
+# If "expcopy" then export a copy of the wiki
+elif [[ "${1,,}" = "expcopy" ]]; then
+  cp -rf /home/gitit/data/wikidata/* /home/gitit/export/
+# If "expclone" then export a clone of the wiki repo
+elif [[ "${1,,}" = "expclone" ]]; then
+  cd /home/gitit/export/
+  git clone /home/gitit/data/wikidata  "./$(date +"%j%H%M")"
 fi
 
