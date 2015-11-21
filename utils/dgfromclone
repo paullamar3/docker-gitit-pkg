@@ -37,6 +37,7 @@ while getopts ":hn:p:d:" opt; do
   case $opt in
     h)
       echo "$USAGE"
+      exit
       ;;
     n)
       cname="$OPTARG"
