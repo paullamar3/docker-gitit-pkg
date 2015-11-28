@@ -74,7 +74,9 @@ elif [[ "${action,,}" = "copy" || "${action,,}" = "clone" ]]; then
   docker run -it --name "$cname" --rm --volumes-from "$cinit" -v "$dir:/home/gitit/init" paullamar3/gitit-pkg:v0.10 "$action"
   set +x
 elif [[ "${action,,}" = "expcopy" || "${action,,}" = "expclone" ]]; then
+  set -x
   docker run -it --rm --volumes-from "$cinit" -v "$dir:/home/gitit/export" paullamar3/gitit-pkg:v0.10 "$action"
+  set +x
 fi
 
 

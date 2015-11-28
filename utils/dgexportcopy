@@ -49,6 +49,8 @@ while getopts ":hd:" opt; do
   esac
 done
 
+shift "$((OPTIND-1))"
+
 if [[ -z "$1" ]]; then
   echo "Must specify the container name to be exported."
   exit 1
